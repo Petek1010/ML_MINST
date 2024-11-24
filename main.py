@@ -1,8 +1,12 @@
+import sys
+
+import matplotlib.pyplot as plt
+import numpy as np
 import tensorflow as tf
 import keras as k
 import math
 from keras import optimizers
-from
+
 
 learning_rate = 1e-3
 optimizer = optimizers.SGD(learning_rate=1e-3)
@@ -100,6 +104,27 @@ def fit(model, images, labels, epochs, batch_size=128):
 
 if __name__ == '__main__':
 
+    (train_images, train_labels), (test_images, test_labels) = k.datasets.mnist.load_data()
 
+    train_images = train_images.reshape((60000, 28 * 28))
+    train_images = train_images.astype("float32") / 255
+    test_images = test_images.reshape((10000, 28 * 28))
+    test_images = test_images.astype("float32") / 255
+
+
+
+    model = SimpleSequential([
+        SimpleDense(input_size=28 * 28, output_size=512, activation=tf.nn.relu),
+        SimpleDense(input_size=512, output_size=10, activation=tf.nn.softmax)
+    ])
+    assert len(model.weights) == 4
+
+    fit(model, train_images, train_labels, epochs=10, batch_size=128)
+
+    predictions = model(test_images)
+    predictions = predictions.numpy()
+    predicted_labels = np.argmax(predictions, axis=1)
+    matches = predicted_labels == test_labels
+    print(f"accuracy: {matches.mean():.2f}")
 
 
